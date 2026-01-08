@@ -25,12 +25,12 @@ class LeadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lead
-        fields = ['id', 'name', 'email', 'phone', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['email', 'name', 'phone', 'created_at']
+        read_only_fields = ['created_at']
 
     def validate_email(self, value):
         """
-        Validate email format.
+        Validate email format and check for uniqueness.
         Django's EmailField already validates basic format,
         but we add explicit validation for clarity.
         """
@@ -42,7 +42,17 @@ class LeadSerializer(serializers.ModelSerializer):
         if not re.match(email_pattern, value):
             raise serializers.ValidationError("Invalid email format.")
         
-        return value.lower().strip()
+        # Normalize email (lowercase and strip)
+        normalized_email = value.lower().strip()
+        
+        # Check if email already exists (for create operations)
+        if self.instance is None:  # Creating new lead
+            if Lead.objects.filter(email=normalized_email).exists():
+                raise serializers.ValidationError(
+                    "This email has already been registered. Each email can only be submitted once."
+                )
+        
+        return normalized_email
 
     def validate_phone(self, value):
         """

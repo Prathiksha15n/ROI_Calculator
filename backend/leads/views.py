@@ -7,6 +7,7 @@ import traceback
 from threading import Thread
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.db import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -68,13 +69,29 @@ class LeadCreateView(APIView):
             )
         
         # Save lead to database
-        lead = serializer.save()
+        # Handle duplicate email case (email is primary key)
+        try:
+            lead = serializer.save()
+        except IntegrityError as e:
+            # Catch database constraint violations (duplicate email)
+            return Response(
+                {
+                    "success": False,
+                    "errors": {
+                        "email": ["This email has already been registered. Each email can only be submitted once."]
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            # Re-raise other exceptions to be handled by outer try-except
+            raise
         
         # Send email asynchronously in background thread
         # API responds immediately without waiting for email
         Thread(
             target=send_roadmap_email_async,
-            args=(lead.id, lead.full_name, lead.email)
+            args=(lead.email, lead.full_name, lead.email)
         ).start()
         
         # Return success response immediately (email sending happens in background)
@@ -87,7 +104,7 @@ class LeadCreateView(APIView):
         )
     
 
-def send_roadmap_email_async(lead_id, full_name, email_address):
+def send_roadmap_email_async(email_address, full_name, lead_email):
     """
     Asynchronous function to send roadmap email in background thread.
     
@@ -95,14 +112,14 @@ def send_roadmap_email_async(lead_id, full_name, email_address):
     All errors are logged but do not affect the API response.
     
     Args:
-        lead_id: ID of the lead (for logging)
+        email_address: Email address to send to (same as lead_email, kept for compatibility)
         full_name: Full name of the lead
-        email_address: Email address to send to
+        lead_email: Email address (primary key, used for logging)
     """
     try:
         # Verify email configuration
         if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-            print(f"[Email Thread] Error for lead {lead_id}: Email credentials not configured")
+            print(f"[Email Thread] Error for email {lead_email}: Email credentials not configured")
             return
         
         # Path to static PDF file
@@ -110,7 +127,7 @@ def send_roadmap_email_async(lead_id, full_name, email_address):
         
         # Verify PDF file exists
         if not os.path.exists(pdf_path):
-            print(f"[Email Thread] Error for lead {lead_id}: PDF not found at {pdf_path}")
+            print(f"[Email Thread] Error for email {lead_email}: PDF not found at {pdf_path}")
             return
         
         # HTML email template
@@ -248,11 +265,11 @@ Digital Maven & MIT"""
         
         # Send email
         email.send()
-        print(f"[Email Thread] Email sent successfully to {email_address} (Lead ID: {lead_id})")
+        print(f"[Email Thread] Email sent successfully to {email_address}")
         
     except Exception as e:
         # Log error but do NOT raise - this runs in background thread
         error_details = traceback.format_exc()
-        print(f"[Email Thread] Failed to send email to {email_address} (Lead ID: {lead_id}): {str(e)}")
+        print(f"[Email Thread] Failed to send email to {email_address}: {str(e)}")
         print(f"[Email Thread] Full traceback:\n{error_details}")
 
