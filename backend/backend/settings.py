@@ -84,20 +84,23 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+import os
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Roi',
-        'USER': 'root',
-        'PASSWORD': 'admin123',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': 'utf8mb4',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("MYSQL_DATABASE"),
+        "USER": os.environ.get("MYSQL_USER"),
+        "PASSWORD": os.environ.get("MYSQL_PASSWORD"),
+        "HOST": os.environ.get("MYSQL_HOST"),
+        "PORT": os.environ.get("MYSQL_PORT", "3306"),
+        "OPTIONS": {
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+            "charset": "utf8mb4",
         },
     }
 }
+
 
 # Database setup notes:
 # 1. Ensure MySQL server is running on localhost:3306
