@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Base Colors - Near Black */
+  --bg-primary: #0B0E14;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1F2937;
+  
+  /* Accent - Goldenish Orange */
+  --accent-teal: #FF9500;
+  --accent-teal-dark: #E68500;
+  --accent-teal-light: #FFB347;
+  
+  /* Optional Secondary - Muted Violet (low opacity) */
+  --accent-violet: rgba(124, 124, 255, 0.15);
+  
+  /* Glass Effects */
+  --glass-bg: rgba(31, 41, 55, 0.4);
+  --glass-border: rgba(255, 149, 0, 0.2);
+  --glass-border-hover: rgba(255, 149, 0, 0.4);
+  
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-tertiary: rgba(255, 255, 255, 0.6);
+  --text-muted: rgba(255, 255, 255, 0.4);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  color: var(--text-primary);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Background with abstract tech pattern */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-primary);
+  background-image: 
+    /* Abstract neural network / mesh pattern */
+    radial-gradient(circle at 20% 30%, rgba(255, 149, 0, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255, 149, 0, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(124, 124, 255, 0.04) 0%, transparent 50%),
+    /* Mesh grid pattern */
+    linear-gradient(0deg, transparent 24%, rgba(255, 149, 0, 0.02) 25%, rgba(255, 149, 0, 0.02) 26%, transparent 27%, transparent 74%, rgba(255, 149, 0, 0.02) 75%, rgba(255, 149, 0, 0.02) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, rgba(255, 149, 0, 0.02) 25%, rgba(255, 149, 0, 0.02) 26%, transparent 27%, transparent 74%, rgba(255, 149, 0, 0.02) 75%, rgba(255, 149, 0, 0.02) 76%, transparent 77%, transparent);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 50px 50px, 50px 50px;
+  opacity: 0.08;
+  filter: blur(10px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Dark gradient overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    var(--bg-primary) 0%,
+    var(--bg-secondary) 50%,
+    var(--bg-primary) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  z-index: 2;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}

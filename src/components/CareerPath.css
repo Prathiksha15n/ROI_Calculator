@@ -1,0 +1,119 @@
+.career-path {
+  margin-top: 40px;
+  padding: 30px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+.career-path-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.path-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.path-step {
+  position: relative;
+}
+
+.path-step-content {
+  background: var(--bg-tertiary);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.path-step-content:hover {
+  background: rgba(255, 149, 0, 0.1);
+  transform: translateX(8px);
+  border-color: var(--accent-teal);
+  box-shadow: 0 8px 30px rgba(255, 149, 0, 0.2);
+}
+
+.path-step-final .path-step-content {
+  background: linear-gradient(135deg, var(--accent-violet) 0%, rgba(255, 149, 0, 0.2) 100%);
+  border-color: var(--accent-teal);
+  box-shadow: 0 8px 30px rgba(255, 149, 0, 0.3);
+}
+
+.path-step-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.path-step-salary {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent-teal);
+  margin-bottom: 8px;
+}
+
+.path-step-skills {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.path-step-time {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.path-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.path-line {
+  width: 2px;
+  height: 20px;
+  background: linear-gradient(180deg, var(--accent-teal) 0%, transparent 100%);
+}
+
+.path-arrow {
+  color: var(--accent-teal);
+  font-size: 1.5rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+
+@media (max-width: 768px) {
+  .career-path {
+    padding: 20px;
+  }
+  
+  .path-step-content {
+    padding: 15px;
+  }
+  
+  .path-step-salary {
+    font-size: 1.5rem;
+  }
+}

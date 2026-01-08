@@ -1,0 +1,793 @@
+.roi-calculator {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.calculator-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 60px;
+}
+
+/* Glass Card Base */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideInUp 0.6s ease-out;
+  transition: all 0.3s ease;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.glass-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: 0 12px 40px rgba(255, 149, 0, 0.2);
+}
+
+/* Step Header */
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.step-number {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-teal);
+  background: rgba(255, 149, 0, 0.15);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 149, 0, 0.3);
+}
+
+.step-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.step-description {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+/* Option Cards (Step 1) */
+.option-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.option-card {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.option-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 149, 0, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.option-card:hover::before {
+  left: 100%;
+}
+
+.option-card:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: var(--accent-teal);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(255, 149, 0, 0.2);
+}
+
+.option-card.selected {
+  background: linear-gradient(135deg, var(--accent-violet) 0%, rgba(255, 149, 0, 0.2) 100%);
+  border-color: var(--accent-teal);
+  box-shadow: 0 8px 30px rgba(255, 149, 0, 0.3);
+}
+
+.option-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.option-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.option-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 32px;
+}
+
+.form-label {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.form-hint {
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+/* Text Input */
+.role-input,
+.text-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.role-input:focus,
+.text-input:focus {
+  border-color: var(--accent-teal);
+  box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.1);
+  background: rgba(255, 149, 0, 0.05);
+}
+
+.role-input::placeholder,
+.text-input::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.6;
+}
+
+/* Number input specific styles */
+.text-input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+.text-input[type="number"]::-webkit-outer-spin-button,
+.text-input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none; /* Chrome, Safari, Edge */
+  margin: 0;
+}
+
+/* Skill Chips */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.skill-chip {
+  padding: 12px 24px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--glass-border);
+  border-radius: 50px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.skill-chip:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: var(--accent-teal);
+  transform: translateY(-2px);
+}
+
+.skill-chip.selected {
+  background: rgba(255, 149, 0, 0.85);
+  border-color: var(--accent-teal);
+  box-shadow: 0 4px 15px rgba(255, 149, 0, 0.4);
+  color: var(--bg-primary);
+  font-weight: 600;
+}
+
+/* Step Actions */
+.step-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-calculate {
+  padding: 16px 40px;
+  background: rgba(255, 149, 0, 0.85);
+  border: none;
+  border-radius: 12px;
+  color: var(--bg-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 30px rgba(255, 149, 0, 0.4);
+  min-width: 180px;
+}
+
+.btn-calculate:hover:not(.disabled) {
+  background: rgba(255, 179, 71, 0.85);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(255, 149, 0, 0.6);
+}
+
+.btn-calculate:active:not(.disabled) {
+  transform: translateY(0);
+}
+
+.btn-calculate.disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: var(--accent-teal);
+  transform: translateY(-2px);
+}
+
+.results-actions {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* Hint Card */
+.hint-card {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+  border-color: rgba(255, 193, 7, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(255, 193, 7, 0.2);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(255, 193, 7, 0.4);
+  }
+}
+
+.hint-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.hint-icon {
+  font-size: 2rem;
+}
+
+.hint-text {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.hint-salary {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-teal);
+  margin-top: 8px;
+}
+
+.hint-cta {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Toggle Container Inline (Inside Form) */
+.toggle-container-inline {
+  padding: 20px;
+  background: rgba(255, 149, 0, 0.05);
+  border: 2px solid var(--glass-border);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.toggle-container-inline:has(.toggle-input:checked) {
+  background: rgba(255, 149, 0, 0.1);
+  border-color: var(--accent-teal);
+}
+
+.toggle-label-inline {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.toggle-input {
+  width: 48px;
+  height: 28px;
+  appearance: none;
+  background: var(--bg-tertiary);
+  border-radius: 14px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  margin-top: 2px;
+  border: 2px solid var(--glass-border);
+}
+
+.toggle-input:checked {
+  background: rgba(255, 149, 0, 0.85);
+  border-color: var(--accent-teal);
+}
+
+.toggle-input::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-input:checked::before {
+  transform: translateX(20px);
+}
+
+.toggle-content-inline {
+  flex: 1;
+}
+
+.toggle-text-inline {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.toggle-subtext-inline {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Results Card */
+.results-card {
+  animation: revealResults 0.8s ease-out;
+}
+
+@keyframes revealResults {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.results-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.results-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.results-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Salary Comparison */
+.salary-comparison {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.salary-card {
+  flex: 1;
+  min-width: 280px;
+  padding: 35px;
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.salary-card.before {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--glass-border);
+}
+
+.salary-card.after {
+  background: linear-gradient(135deg, var(--accent-violet) 0%, rgba(255, 149, 0, 0.2) 100%);
+  border: 2px solid var(--accent-teal);
+  box-shadow: 0 8px 40px rgba(255, 149, 0, 0.3);
+}
+
+.salary-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 149, 0, 0.2) 0%, transparent 70%);
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.salary-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.salary-amount {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.salary-avg {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.salary-avg span {
+  font-weight: 700;
+  color: var(--accent-teal);
+}
+
+.comparison-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.arrow-line {
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(180deg, var(--accent-teal) 0%, transparent 100%);
+}
+
+.arrow-head {
+  font-size: 2rem;
+  color: var(--accent-teal);
+  font-weight: bold;
+  animation: slideRight 2s ease-in-out infinite;
+}
+
+@keyframes slideRight {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(8px);
+  }
+}
+
+/* ROI Uplift */
+.roi-uplift {
+  margin-bottom: 40px;
+}
+
+.uplift-card {
+  background: linear-gradient(135deg, rgba(255, 149, 0, 0.15) 0%, rgba(255, 149, 0, 0.25) 100%);
+  border: 2px solid var(--accent-teal);
+  padding: 35px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(255, 149, 0, 0.3);
+}
+
+.uplift-label {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.uplift-amount {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--accent-teal);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.uplift-amount span {
+  display: inline-block;
+}
+
+.uplift-percentage {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Skill Breakdown */
+.skill-breakdown {
+  margin-bottom: 40px;
+}
+
+.breakdown-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  border-left: 4px solid var(--accent-teal);
+  transition: all 0.3s ease;
+}
+
+.breakdown-item:hover {
+  background: rgba(255, 149, 0, 0.1);
+  transform: translateX(8px);
+}
+
+.breakdown-skill {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.breakdown-uplift {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: var(--accent-teal);
+  font-size: 1.2rem;
+}
+
+/* Time to Impact */
+.time-to-impact {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  background: rgba(255, 149, 0, 0.1);
+  border-radius: 12px;
+  border-left: 4px solid var(--accent-teal);
+  margin-bottom: 30px;
+}
+
+.impact-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.impact-text {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.impact-text strong {
+  color: var(--accent-teal);
+}
+
+/* CTA Button */
+.results-cta {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.cta-button {
+  padding: 18px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--bg-primary);
+  background: rgba(255, 149, 0, 0.85);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 30px rgba(255, 149, 0, 0.4);
+  font-family: 'Inter', sans-serif;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 179, 71, 0.85);
+  box-shadow: 0 12px 40px rgba(255, 149, 0, 0.6);
+}
+
+/* Explanation Box */
+.explanation-box {
+  margin: 30px 0;
+  padding: 20px;
+  background: rgba(255, 149, 0, 0.1);
+  border-radius: 12px;
+  border-left: 4px solid var(--accent-teal);
+}
+
+.explanation-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Disclaimer */
+.disclaimer {
+  padding: 20px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  border-left: 4px solid var(--glass-border);
+}
+
+.disclaimer p {
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.disclaimer strong {
+  color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 24px;
+  }
+
+  .step-title {
+    font-size: 1.5rem;
+  }
+
+  .option-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .salary-comparison {
+    flex-direction: column;
+  }
+
+  .comparison-arrow {
+    transform: rotate(90deg);
+  }
+
+  .arrow-line {
+    width: 40px;
+    height: 2px;
+  }
+
+  .salary-card {
+    width: 100%;
+  }
+
+  .uplift-amount {
+    font-size: 2.5rem;
+  }
+
+  .results-title {
+    font-size: 1.8rem;
+  }
+}

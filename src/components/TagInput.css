@@ -1,0 +1,137 @@
+.tag-input-container {
+  width: 100%;
+}
+
+.tag-input-wrapper {
+  min-height: 48px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--glass-border);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.tag-input-wrapper:focus-within {
+  border-color: var(--accent-teal);
+  box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.1);
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.skill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--glass-bg);
+  border: 1px solid rgba(255, 149, 0, 0.3);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  animation: tagFadeIn 0.3s ease-out;
+  transition: all 0.2s ease;
+}
+
+@keyframes tagFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.skill-tag:hover {
+  border-color: var(--accent-teal);
+  background: rgba(255, 149, 0, 0.1);
+}
+
+.tag-text {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.tag-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tag-remove:hover {
+  color: var(--accent-teal);
+  background: rgba(255, 149, 0, 0.2);
+  transform: scale(1.1);
+}
+
+.tag-remove:active {
+  transform: scale(0.95);
+}
+
+.tag-input {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px 4px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.tag-input::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.6;
+}
+
+.tag-limit-message {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+  text-align: center;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .tag-input-wrapper {
+    padding: 6px 10px;
+    min-height: 44px;
+  }
+
+  .skill-tag {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+
+  .tag-input {
+    font-size: 0.85rem;
+    min-width: 100px;
+  }
+}
+
+
+
+
+
+
