@@ -90,15 +90,17 @@ DATABASES = {
     "default": {
         "ENGINE": "mysql.connector.django",
         "NAME": os.environ.get("MYSQL_DATABASE"),
-        "USER": os.environ.get("MYSQL_USER"),
-        "PASSWORD": os.environ.get("MYSQL_PASSWORD"),
-        "HOST": os.environ.get("MYSQL_HOST"),
-        "PORT": os.environ.get("MYSQL_PORT", "3306"),
+        "USER": os.environ.get("MYSQLUSER"),
+        "PASSWORD": os.environ.get("MYSQLPASSWORD"),
+        "HOST": os.environ.get("MYSQLHOST"),
+        "PORT": os.environ.get("MYSQLPORT", "3306"),
         "OPTIONS": {
+            "use_pure": True,
             "charset": "utf8mb4",
         },
     }
 }
+
 
 
 
