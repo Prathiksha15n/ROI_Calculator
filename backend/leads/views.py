@@ -123,7 +123,14 @@ def send_roadmap_email_async(email_address, full_name, lead_email):
             return
         
         # Path to static PDF file
-        pdf_path = os.path.join(settings.BASE_DIR, "leads", "assets", "FSM_Roadmap.pdf")
+        pdf_path = os.path.join(
+    settings.BASE_DIR,
+    "backend",
+    "leads",
+    "assets",
+    "FSM_Roadmap.pdf"
+)
+
         
         # Verify PDF file exists
         if not os.path.exists(pdf_path):
