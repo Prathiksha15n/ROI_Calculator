@@ -30,7 +30,14 @@ SECRET_KEY = 'django-insecure-change-this-in-production-use-env-variable'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS", "")
+
+if ALLOWED_HOSTS_ENV == "*":
+    ALLOWED_HOSTS = ["*"]
+elif ALLOWED_HOSTS_ENV:
+    ALLOWED_HOSTS = ALLOWED_HOSTS_ENV.split(",")
+else:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Application definition
