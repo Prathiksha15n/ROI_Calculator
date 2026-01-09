@@ -58,17 +58,17 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', 
-    'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
-     # CORS middleware must be before CommonMiddleware
-    
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -183,8 +183,10 @@ REST_FRAMEWORK = {
 
 # Allow specific headers
 
+CORS_ALLOWED_ORIGINS = [
+    "https://blissful-adventure-production.up.railway.app",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+
 
 CORS_ALLOW_CREDENTIALS = True
 
