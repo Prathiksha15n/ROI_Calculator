@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import './LeadCaptureModal.css'
 
+// Get API base URL from environment variable
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+
 const LeadCaptureModal = ({ isOpen, onClose, careerProfile }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -170,8 +173,8 @@ const LeadCaptureModal = ({ isOpen, onClose, careerProfile }) => {
       }
 
       // Make API call to Django backend
-      // Endpoint: POST http://127.0.0.1:8000/api/leads/
-      const response = await fetch('http://127.0.0.1:8000/api/leads/', {
+      // Endpoint: POST ${API_BASE_URL}/api/leads/
+      const response = await fetch(`${API_BASE_URL}/api/leads/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
