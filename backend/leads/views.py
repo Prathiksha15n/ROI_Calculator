@@ -122,12 +122,19 @@ def send_roadmap_email_async(email_address, full_name, lead_email):
     connections.close_all()
     
     try:
-        # Verify email configuration
+        # Verify email configuration with detailed logging
+        print(f"[Email Thread] Checking email configuration...")
+        print(f"[Email Thread] EMAIL_HOST: {settings.EMAIL_HOST}")
+        print(f"[Email Thread] EMAIL_PORT: {settings.EMAIL_PORT}")
+        print(f"[Email Thread] EMAIL_USE_TLS: {settings.EMAIL_USE_TLS}")
+        print(f"[Email Thread] EMAIL_HOST_USER: {settings.EMAIL_HOST_USER if settings.EMAIL_HOST_USER else 'NOT SET'}")
+        print(f"[Email Thread] EMAIL_HOST_PASSWORD: {'***SET***' if settings.EMAIL_HOST_PASSWORD else 'NOT SET'}")
+        print(f"[Email Thread] EMAIL_FROM_ADDRESS: {settings.EMAIL_FROM_ADDRESS}")
+        
         if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-            error_msg = f"[Email Thread] Error for email {lead_email}: Email credentials not configured"
+            error_msg = f"[Email Thread] ❌ Error for email {lead_email}: Email credentials not configured"
             print(error_msg)
-            print(f"[Email Thread] EMAIL_HOST_USER: {settings.EMAIL_HOST_USER if settings.EMAIL_HOST_USER else 'NOT SET'}")
-            print(f"[Email Thread] EMAIL_HOST_PASSWORD: {'SET' if settings.EMAIL_HOST_PASSWORD else 'NOT SET'}")
+            print(f"[Email Thread] Please set EMAIL_HOST_USER and EMAIL_HOST_PASSWORD environment variables")
             return
         
         # Path to static PDF file
@@ -275,14 +282,42 @@ Digital Maven & MIT"""
         email.attach_alternative(html_email_body, "text/html")
         
         # Attach static PDF file (same file for all leads)
-        email.attach_file(pdf_path)
+        try:
+            print(f"[Email Thread] Attaching PDF from: {pdf_path}")
+            email.attach_file(pdf_path)
+            print(f"[Email Thread] PDF attached successfully")
+        except Exception as pdf_error:
+            print(f"[Email Thread] ⚠️ Warning: Failed to attach PDF: {str(pdf_error)}")
+            print(f"[Email Thread] Continuing without PDF attachment...")
+            # Continue without PDF - email will still be sent
         
-        # Send email
+        # Send email with detailed logging
         print(f"[Email Thread] Attempting to send email to {email_address}...")
         print(f"[Email Thread] From: {settings.EMAIL_FROM_ADDRESS}")
+        print(f"[Email Thread] SMTP Host: {settings.EMAIL_HOST}")
+        print(f"[Email Thread] SMTP Port: {settings.EMAIL_PORT}")
+        print(f"[Email Thread] Use TLS: {settings.EMAIL_USE_TLS}")
         print(f"[Email Thread] PDF path: {pdf_path}")
+        print(f"[Email Thread] PDF exists: {os.path.exists(pdf_path)}")
         
-        email.send()
+        # Test SMTP connection before sending
+        try:
+            import smtplib
+            print(f"[Email Thread] Testing SMTP connection...")
+            server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT, timeout=10)
+            if settings.EMAIL_USE_TLS:
+                server.starttls()
+            server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+            server.quit()
+            print(f"[Email Thread] ✅ SMTP connection test successful")
+        except Exception as smtp_test_error:
+            print(f"[Email Thread] ❌ SMTP connection test failed: {str(smtp_test_error)}")
+            print(f"[Email Thread] Error type: {type(smtp_test_error).__name__}")
+            raise  # Re-raise to be caught by outer exception handler
+        
+        # Send email
+        print(f"[Email Thread] Sending email now...")
+        email.send(fail_silently=False)  # Don't fail silently - we want to see errors
         print(f"[Email Thread] ✅ Email sent successfully to {email_address}")
         
     except Exception as e:
@@ -291,6 +326,13 @@ Digital Maven & MIT"""
         print(f"[Email Thread] ❌ Failed to send email to {email_address}")
         print(f"[Email Thread] Error: {str(e)}")
         print(f"[Email Thread] Error type: {type(e).__name__}")
+        print(f"[Email Thread] Error args: {e.args if hasattr(e, 'args') else 'N/A'}")
+        
+        # Additional debugging info
+        print(f"[Email Thread] EMAIL_HOST_USER set: {bool(settings.EMAIL_HOST_USER)}")
+        print(f"[Email Thread] EMAIL_HOST_PASSWORD set: {bool(settings.EMAIL_HOST_PASSWORD)}")
+        print(f"[Email Thread] EMAIL_FROM_ADDRESS: {settings.EMAIL_FROM_ADDRESS}")
+        
         print(f"[Email Thread] Full traceback:\n{error_details}")
         
         # Also log to a file for debugging (optional)
@@ -301,7 +343,8 @@ Digital Maven & MIT"""
                 f.write(f"Timestamp: {__import__('datetime').datetime.now()}\n")
                 f.write(f"Email: {email_address}\n")
                 f.write(f"Error: {str(e)}\n")
+                f.write(f"Error type: {type(e).__name__}\n")
                 f.write(f"Traceback:\n{error_details}\n")
-        except Exception:
-            pass  # Don't fail if logging fails
+        except Exception as log_err:
+            print(f"[Email Thread] Failed to write error log: {str(log_err)}")
 

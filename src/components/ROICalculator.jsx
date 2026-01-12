@@ -249,7 +249,7 @@ const ROICalculator = () => {
                 tags={fresherSkills}
                 onTagsChange={setFresherSkills}
                 placeholder="e.g. SEO, Google Analytics, Paid Ads, Excel, ChatGPT"
-                maxTags={15}
+                maxTags={50}
               />
             </div>
 
@@ -393,7 +393,7 @@ const ROICalculator = () => {
                 tags={experiencedSkills}
                 onTagsChange={setExperiencedSkills}
                 placeholder="e.g. SEO, Google Analytics, Paid Ads, Excel, ChatGPT"
-                maxTags={15}
+                maxTags={50}
               />
             </div>
 
