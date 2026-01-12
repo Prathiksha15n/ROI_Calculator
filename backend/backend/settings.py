@@ -184,7 +184,7 @@ REST_FRAMEWORK = {
 # Allow specific headers
 
 CORS_ALLOWED_ORIGINS = [
-    "https://blissful-adventure-production.up.railway.app",
+    "https://roi-calculator.up.railway.app/",
 ]
 
 
