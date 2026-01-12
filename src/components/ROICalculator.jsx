@@ -328,19 +328,61 @@ const ROICalculator = () => {
               <label className="form-label">Current Salary (₹ LPA)</label>
               <p className="form-hint">Enter your current annual salary in Lakhs Per Annum</p>
               <input
-                type="number"
+                type="text"
                 className="text-input"
                 value={currentSalary}
                 onChange={(e) => {
                   const value = e.target.value
                   // Allow only numbers and one decimal point
+                  // Regex: optional digits, optional single decimal point, optional digits after decimal
                   if (value === '' || /^\d*\.?\d*$/.test(value)) {
                     setCurrentSalary(value)
                   }
                 }}
+                onKeyDown={(e) => {
+                  // Allow: backspace, delete, tab, escape, enter, decimal point, numbers
+                  const allowedKeys = [
+                    'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+                    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+                    'Home', 'End'
+                  ]
+                  
+                  // Allow numbers (0-9)
+                  if (e.key >= '0' && e.key <= '9') {
+                    return
+                  }
+                  
+                  // Allow decimal point (only one)
+                  if (e.key === '.' && !currentSalary.includes('.')) {
+                    return
+                  }
+                  
+                  // Allow control keys
+                  if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) {
+                    return
+                  }
+                  
+                  // Block everything else
+                  e.preventDefault()
+                }}
+                onPaste={(e) => {
+                  e.preventDefault()
+                  const pastedText = e.clipboardData.getData('text')
+                  // Extract only numbers and decimal point from pasted text
+                  const cleaned = pastedText.replace(/[^\d.]/g, '')
+                  // Ensure only one decimal point
+                  const parts = cleaned.split('.')
+                  const finalValue = parts.length > 2 
+                    ? parts[0] + '.' + parts.slice(1).join('')
+                    : cleaned
+                  
+                  // Validate the final value matches our pattern
+                  if (finalValue === '' || /^\d*\.?\d*$/.test(finalValue)) {
+                    setCurrentSalary(finalValue)
+                  }
+                }}
                 placeholder="e.g. 8.5"
-                min="0"
-                step="0.1"
+                inputMode="decimal"
               />
             </div>
 
