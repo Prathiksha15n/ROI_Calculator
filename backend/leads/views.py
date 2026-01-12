@@ -116,25 +116,32 @@ def send_roadmap_email_async(email_address, full_name, lead_email):
         full_name: Full name of the lead
         lead_email: Email address (primary key, used for logging)
     """
+    # Close any existing database connections before starting thread
+    # This is important for Django threads
+    from django.db import connections
+    connections.close_all()
+    
     try:
         # Verify email configuration
         if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-            print(f"[Email Thread] Error for email {lead_email}: Email credentials not configured")
+            error_msg = f"[Email Thread] Error for email {lead_email}: Email credentials not configured"
+            print(error_msg)
+            print(f"[Email Thread] EMAIL_HOST_USER: {settings.EMAIL_HOST_USER if settings.EMAIL_HOST_USER else 'NOT SET'}")
+            print(f"[Email Thread] EMAIL_HOST_PASSWORD: {'SET' if settings.EMAIL_HOST_PASSWORD else 'NOT SET'}")
             return
         
         # Path to static PDF file
-        pdf_path = os.path.join(
-    settings.BASE_DIR,
-    "backend",
-    "leads",
-    "assets",
-    "FSM_Roadmap.pdf"
-)
+        # BASE_DIR points to backend/ directory, so we go: leads/assets/FSM_Roadmap.pdf
+        pdf_path = os.path.join(settings.BASE_DIR, "leads", "assets", "FSM_Roadmap.pdf")
 
         
         # Verify PDF file exists
         if not os.path.exists(pdf_path):
-            print(f"[Email Thread] Error for email {lead_email}: PDF not found at {pdf_path}")
+            error_msg = f"[Email Thread] Error for email {lead_email}: PDF not found at {pdf_path}"
+            print(error_msg)
+            print(f"[Email Thread] BASE_DIR: {settings.BASE_DIR}")
+            print(f"[Email Thread] Checking if directory exists: {os.path.dirname(pdf_path)}")
+            print(f"[Email Thread] Directory exists: {os.path.exists(os.path.dirname(pdf_path))}")
             return
         
         # HTML email template
@@ -271,12 +278,30 @@ Digital Maven & MIT"""
         email.attach_file(pdf_path)
         
         # Send email
+        print(f"[Email Thread] Attempting to send email to {email_address}...")
+        print(f"[Email Thread] From: {settings.EMAIL_FROM_ADDRESS}")
+        print(f"[Email Thread] PDF path: {pdf_path}")
+        
         email.send()
-        print(f"[Email Thread] Email sent successfully to {email_address}")
+        print(f"[Email Thread] ✅ Email sent successfully to {email_address}")
         
     except Exception as e:
         # Log error but do NOT raise - this runs in background thread
         error_details = traceback.format_exc()
-        print(f"[Email Thread] Failed to send email to {email_address}: {str(e)}")
+        print(f"[Email Thread] ❌ Failed to send email to {email_address}")
+        print(f"[Email Thread] Error: {str(e)}")
+        print(f"[Email Thread] Error type: {type(e).__name__}")
         print(f"[Email Thread] Full traceback:\n{error_details}")
+        
+        # Also log to a file for debugging (optional)
+        try:
+            log_file = os.path.join(settings.BASE_DIR, 'email_errors.log')
+            with open(log_file, 'a') as f:
+                f.write(f"\n{'='*60}\n")
+                f.write(f"Timestamp: {__import__('datetime').datetime.now()}\n")
+                f.write(f"Email: {email_address}\n")
+                f.write(f"Error: {str(e)}\n")
+                f.write(f"Traceback:\n{error_details}\n")
+        except Exception:
+            pass  # Don't fail if logging fails
 

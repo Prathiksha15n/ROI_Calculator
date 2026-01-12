@@ -5,12 +5,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     allowedHosts: [
-      'blissful-adventure-production.up.railway.app'
+      'roi-calculator.up.railway.app'
     ]
   },
   preview: {
     allowedHosts: [
-      'blissful-adventure-production.up.railway.app'
+      'roi-calculator.up.railway.app'
     ]
   }
 })

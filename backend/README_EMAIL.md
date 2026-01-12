@@ -65,3 +65,5 @@ The Django process won't have access to those variables.
 
 **Solution:** Always set variables in the SAME terminal session BEFORE starting Django.
 
+
+
