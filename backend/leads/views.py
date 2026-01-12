@@ -3,6 +3,7 @@ API views for Lead management.
 Handles POST requests to create leads and send roadmap emails.
 """
 import os
+
 import traceback
 from threading import Thread
 from django.core.mail import EmailMultiAlternatives
