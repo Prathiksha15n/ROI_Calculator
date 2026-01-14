@@ -1,32 +1,42 @@
 """
 API views for Lead management.
 Handles POST requests to create leads and send roadmap emails.
+Sends lead data to Google Sheets via webhook instead of saving to database.
 """
 import os
-
+import re
 import traceback
+import requests
 from threading import Thread
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
-from django.db import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Lead
-from .serializers import LeadSerializer
+
+# Google Sheets webhook URL
+GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxg8OpadW0z9cro_BL0TudSn-p-iZS8IWb3vZm5GbLY4lzkz__4sYSipD_MglOUrP79/exec"
 
 
 class LeadCreateView(APIView):
     """
     API endpoint to create a lead and send roadmap email.
+    Sends lead data to Google Sheets via webhook instead of saving to database.
     
     POST /api/leads/
     
     Request body:
     {
+        "full_name": "string",
+        "email": "string",
+        "phone_number": "string"  (10 digits, without +91 prefix)
+    }
+    
+    Also accepts legacy format for backward compatibility:
+    {
         "name": "string",
         "email": "string",
-        "phone": "+91XXXXXXXXXX"
+        "phone": "string"
     }
     
     Response (success):
@@ -38,64 +48,150 @@ class LeadCreateView(APIView):
     Response (error):
     {
         "success": false,
-        "errors": {
-            "email": ["error message"],
-            "phone": ["error message"]
-        }
+        "message": "Failed to submit lead"
     }
     """
     
     def post(self, request):
         """
-        Create a new lead and send roadmap email asynchronously.
-        
-        Process:
-        1. Validate request data using serializer
-        2. Save lead to database
+        Process lead submission:
+        1. Validate request data with strict rules
+        2. Send lead data to Google Sheets webhook
         3. Start email sending in background thread (non-blocking)
-        4. Return success response immediately (< 300ms target)
+        4. Return success response only if webhook succeeds (HTTP 200)
         
         Note: Email sending happens asynchronously and does not block the API response.
         """
-        serializer = LeadSerializer(data=request.data)
+        errors = {}
         
-        if not serializer.is_valid():
-            # Return validation errors in clean JSON format
+        # Extract data (support both new and legacy field names)
+        full_name_raw = request.data.get('full_name') or request.data.get('name', '')
+        email_raw = request.data.get('email', '')
+        phone_number_raw = request.data.get('phone_number') or request.data.get('phone', '')
+        
+        # Validate Full Name (required, only letters and spaces)
+        full_name = full_name_raw.strip()
+        if not full_name:
+            errors['full_name'] = ['Name is required.']
+        else:
+            # Check for leading/trailing spaces
+            if full_name != full_name_raw:
+                errors['full_name'] = ['Name cannot contain leading or trailing spaces.']
+            # Validate: only letters and spaces allowed
+            name_pattern = r'^[A-Za-z ]+$'
+            if not re.match(name_pattern, full_name):
+                errors['full_name'] = ['Name can contain only letters and spaces.']
+        
+        # Validate Email (required, strict regex)
+        email = email_raw.strip().lower()
+        if not email:
+            errors['email'] = ['Email is required.']
+        else:
+            # Validate email format using specified regex
+            email_pattern = r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+            if not re.match(email_pattern, email):
+                errors['email'] = ['Invalid email address.']
+        
+        # Validate Phone Number (required, exactly 10 digits, backend adds +91)
+        phone_number = phone_number_raw.strip()
+        
+        # Remove +91 prefix if present (frontend might send it)
+        if phone_number.startswith('+91'):
+            phone_number = phone_number[3:]
+        
+        if not phone_number:
+            errors['phone_number'] = ['Phone number is required.']
+        else:
+            # Validate: exactly 10 digits, only digits allowed
+            phone_pattern = r'^[0-9]{10}$'
+            if not re.match(phone_pattern, phone_number):
+                errors['phone_number'] = ['Phone number must contain exactly 10 digits.']
+        
+        # Return validation errors if any
+        if errors:
             return Response(
                 {
                     "success": False,
-                    "errors": serializer.errors
+                    "errors": errors,
+                    "message": "Failed to submit lead"
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Save lead to database
-        # Handle duplicate email case (email is primary key)
+        # Format phone number with +91 prefix for Google Sheets
+        formatted_phone = f"+91{phone_number}"
+        
+        # Prepare payload for Google Sheets webhook
+        webhook_payload = {
+            "full_name": full_name,
+            "email": email,
+            "phone_number": formatted_phone
+        }
+        
+        # Send to Google Sheets webhook
         try:
-            lead = serializer.save()
-        except IntegrityError as e:
-            # Catch database constraint violations (duplicate email)
+            print(f"[Webhook] Sending lead data to Google Sheets...")
+            print(f"[Webhook] Payload: {webhook_payload}")
+            
+            response = requests.post(
+                GOOGLE_SHEETS_WEBHOOK_URL,
+                json=webhook_payload,
+                headers={'Content-Type': 'application/json'},
+                timeout=5  # 5 second timeout as specified
+            )
+            
+            # Check if webhook call succeeded (must be HTTP 200)
+            if response.status_code != 200:
+                print(f"[Webhook] ❌ Failed with status code: {response.status_code}")
+                print(f"[Webhook] Response: {response.text}")
+                return Response(
+                    {
+                        "success": False,
+                        "message": "Failed to submit lead"
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            print(f"[Webhook] ✅ Successfully sent to Google Sheets")
+            
+        except requests.exceptions.Timeout:
+            print(f"[Webhook] ❌ Request timeout after 5 seconds")
             return Response(
                 {
                     "success": False,
-                    "errors": {
-                        "email": ["This email has already been registered. Each email can only be submitted once."]
-                    }
+                    "message": "Failed to submit lead"
                 },
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_504_GATEWAY_TIMEOUT
+            )
+        except requests.exceptions.RequestException as e:
+            print(f"[Webhook] ❌ Request failed: {str(e)}")
+            traceback.print_exc()
+            return Response(
+                {
+                    "success": False,
+                    "message": "Failed to submit lead"
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         except Exception as e:
-            # Re-raise other exceptions to be handled by outer try-except
-            raise
+            print(f"[Webhook] ❌ Unexpected error: {str(e)}")
+            traceback.print_exc()
+            return Response(
+                {
+                    "success": False,
+                    "message": "Failed to submit lead"
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
         
         # Send email asynchronously in background thread
         # API responds immediately without waiting for email
         Thread(
             target=send_roadmap_email_async,
-            args=(lead.email, lead.full_name, lead.email)
+            args=(email, full_name, email)
         ).start()
         
-        # Return success response immediately (email sending happens in background)
+        # Return success response only if webhook succeeded
         return Response(
             {
                 "success": True,
